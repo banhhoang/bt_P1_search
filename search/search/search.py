@@ -109,7 +109,8 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     visited = set()
     queue = util.Queue()
-    queue.push((problem.getStartState(),[]))
+    queue.push((problem.getStartState(), []))
+
     while not queue.isEmpty():
         state, actions = queue.pop()
 
@@ -121,28 +122,28 @@ def breadthFirstSearch(problem):
         if problem.isGoalState(state):
             return actions
         for successor, action, stepCost in problem.getSuccessors(state):
-            queue.push((successor,action + [action]))
+            queue.push((successor, actions + [action]))
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    from util import PriorityQueue
-    p_queue = PriorityQueue()
-    start_node = problem.getStartState()
-    visited = {}
-    cost = 0
-    action = []
-    p_queue.push((start_node, action, cost), cost)
+    visited = set()
+    p_queue = util.PriorityQueue()
+    p_queue.push((problem.getStartState(), []),0)
+
     while not p_queue.isEmpty():
-        current = p_queue.pop()
-        if problem.isGoalState(current[0]):
-            return current[1]
-        if current[0] not in visited:
-            visited[current[0]] = True
-            for next, act, co in problem.getSuccessors(current[0]):
-                if next and next not in visited:
-                    p_queue.push((next, current[1] + [act], current[2] + co), current[2] + co)
+        state, actions = p_queue.pop()
+
+        if state in visited:
+            continue
+
+        visited.add(state)
+
+        if problem.isGoalState(state):
+            return actions
+        for successor, action, stepCost in problem.getSuccessors(state):
+            p_queue.push((successor, actions + [action]), stepCost + problem.getCostOfActions(actions))
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -155,23 +156,22 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    from util import PriorityQueue
-    p_queue = PriorityQueue()
-    start_node = problem.getStartState()
-    visited = {}
-    cost = 0
-    action = []
-    p_queue.push((start_node, action, cost), cost)
+    visited = set()
+    p_queue = util.PriorityQueue()
+    p_queue.push((problem.getStartState(), []), 0)
+
     while not p_queue.isEmpty():
-        current = p_queue.pop()
-        if problem.isGoalState(current[0]):
-            return current[1]
-        if current[0] not in visited:
-            visited[current[0]] = True
-            for next, act, co in problem.getSuccessors(current[0]):
-                if next and next not in visited:
-                    p_queue.push((next, current[1] + [act], current[2] + co),
-                                 current[2] + heuristic(next, problem) + co)
+        state, actions = p_queue.pop()
+
+        if state in visited:
+            continue
+
+        visited.add(state)
+
+        if problem.isGoalState(state):
+            return actions
+        for successor, action, stepCost in problem.getSuccessors(state):
+            p_queue.push((successor, actions + [action]), stepCost + problem.getCostOfActions(actions) + heuristic(successor, problem = problem) )
     util.raiseNotDefined()
 
 
