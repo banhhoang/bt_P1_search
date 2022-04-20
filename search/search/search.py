@@ -87,46 +87,41 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    from util import Stack
-    stack = Stack()
-    start_node = problem.getStartState()
-    visited = {}
-    cost = 0
-    action = []
-    stack.push((start_node, action, cost))
+    visited = set()
+    stack = util.Stack()
+    stack.push((problem.getStartState(),[]))
+
     while not stack.isEmpty():
-        current = stack.pop()
-        if problem.isGoalState(current[0]):
-            return current[1]
+        state, actions = stack.pop()
+        if state in visited:
+            continue
 
-        if current[0] not in visited:
-            visited[current[0]] = True
-            for next, act, co in problem.getSuccessors(current[0]):
-                if next and next not in visited:
-                    stack.push((next,current[1] + [act], current[2] + co))
+        visited.add(state)
 
+        if problem.isGoalState(state):
+            return actions
+        for successor, action, stepCost in problem.getSuccessors(state):
+            stack.push((successor, actions + [action]))
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    from util import Queue
-    queue = Queue()
-    start_node = problem.getStartState()
-    visited = {}
-    cost = 0
-    action = []
-    queue.push((start_node, action, cost))
+    visited = set()
+    queue = util.Queue()
+    queue.push((problem.getStartState(),[]))
     while not queue.isEmpty():
-        current = queue.pop()
-        if problem.isGoalState(current[0]):
-            return current[1]
+        state, actions = queue.pop()
 
-        if current[0] not in visited:
-            visited[current[0]] = True
-            for next, act, co in problem.getSuccessors(current[0]):
-                if next and next not in visited:
-                    queue.push((next, current[1] + [act], current[2] + co))
+        if state in visited:
+            continue
+
+        visited.add(state)
+
+        if problem.isGoalState(state):
+            return actions
+        for successor, action, stepCost in problem.getSuccessors(state):
+            queue.push((successor,action + [action]))
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
