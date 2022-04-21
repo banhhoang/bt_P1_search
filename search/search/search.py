@@ -87,10 +87,15 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
+    # khai bao vitri da duyet qua
+    # stack de duyet cac vitri trang thai
+    # vitri dau day vao stack chua co hd nao
     visited = set()
     stack = util.Stack()
     stack.push((problem.getStartState(),[]))
 
+    # vong lap neu stack 0 rong
+    # lay ra vi tri trang thai hien tai va cac hd dan den no trong stack
     while not stack.isEmpty():
         state, actions = stack.pop()
         if state in visited:
@@ -101,6 +106,7 @@ def depthFirstSearch(problem):
         if problem.isGoalState(state):
             return actions
         for successor, action, stepCost in problem.getSuccessors(state):
+            # cac hd dan den ang thai hien ai + hd dan den trang thai toi
             stack.push((successor, actions + [action]))
     util.raiseNotDefined()
 
@@ -122,6 +128,7 @@ def breadthFirstSearch(problem):
         if problem.isGoalState(state):
             return actions
         for successor, action, stepCost in problem.getSuccessors(state):
+            # cac hd dan den ang thai hien ai + hd dan den trang thai toi
             queue.push((successor, actions + [action]))
     util.raiseNotDefined()
 
@@ -143,6 +150,7 @@ def uniformCostSearch(problem):
         if problem.isGoalState(state):
             return actions
         for successor, action, stepCost in problem.getSuccessors(state):
+            # stepcost gtri trang thai nay den trang thai do, + tong cac gtri cua cac hd truoc den trang thai nay
             p_queue.push((successor, actions + [action]), stepCost + problem.getCostOfActions(actions))
     util.raiseNotDefined()
 
@@ -171,6 +179,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         if problem.isGoalState(state):
             return actions
         for successor, action, stepCost in problem.getSuccessors(state):
+            # cong them khoang cach tu diem do den dich, diem cos khoang cach ngan hon dc uu tie trc
             p_queue.push((successor, actions + [action]), stepCost + problem.getCostOfActions(actions) + heuristic(successor, problem = problem) )
     util.raiseNotDefined()
 
