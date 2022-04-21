@@ -288,14 +288,16 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.startingGameState = startingGameState
+        self.costFn = lambda x:1
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
         "*** YOUR CODE HERE ***"
-        return self.startingPosition, ()
+
+        # tra ve bat dau them 4 go cua me cung
+        return self.startingPosition, self.corners
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -303,12 +305,11 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        if len(self.corners) != len(state[1]):
-            return False
-        return True
+        # da cham toi dc ca 4 goc
+        return len(state[1]) == 0
         util.raiseNotDefined()
 
-    def getSuccessors(self, state):
+    def getSuccessors(self, state, currentPosition=None):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -320,6 +321,7 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        currentPosition, corner = state
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -329,16 +331,20 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x, y = state[0]
-            visited = state[1]
+            x, y = currentPosition
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int( x + dx), int( y + dy )
+            # check xem vi tri tiep theo la tuong hay k
+            hitswall = self.walls[nextx][nexty]
+            if not hitswall:
+                nextPosition = (nextx, nexty)
 
-            if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
-                if nextState in self.corners and nextState not in state[1]:
-                    visited += (nextState,)
-                successors.append(((nextState, visited), action,1))
+                # cac goc trang thai tiep theo la goc trg thai hien tai, neu trg thai tiep la 1 goc thi 0 them vao trang thai tiep
+                nextCorners = tuple(corner for corner in corner if corner != nextPosition)
+
+                nextState = (nextPosition, nextCorners)
+                cost = self.costFn(nextPosition)
+                successors.append((nextState, action, cost))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -374,20 +380,20 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    from util import manhattanDistance
-    result = 0
-    pos = state[0]
-    remained_corner = [corner for corner in corners if corner not in state[1]]
+    if not state[1]:
+        return 0
+    max = 0
+    currentPosition = state[0]
+    # udyet tat ca cac goc ma chua cham toi
+    for corner in state[1]:
 
-    while len(remained_corner) > 0:
-        distance_array = [manhattanDistance(pos, corner)for corner in remained_corner]
-        distance_min = min(distance_array)
-        distance_index = distance_array.index(distance_min)
-        pos = remained_corner[distance_index]
-        remained_corner.pop(distance_index)
-        result += distance_min
+        # khang cach tu vi tri hien tai den cac goc
+        distance = sum(abs(a - b) for a, b in zip(currentPosition, corner))
 
-    return result
+        # tim ra khoang cach xa nhat
+        if max < distance:
+            max = distance
+    return max
     #return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
